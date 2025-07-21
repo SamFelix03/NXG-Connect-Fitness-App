@@ -1,0 +1,26 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_controller_1 = require("../controllers/auth.controller");
+const auth_middleware_1 = require("../middleware/auth.middleware");
+const rateLimit_middleware_1 = require("../middleware/rateLimit.middleware");
+const validation_middleware_1 = require("../middleware/validation.middleware");
+const sanitization_middleware_1 = require("../middleware/sanitization.middleware");
+const audit_middleware_1 = require("../middleware/audit.middleware");
+const validation_1 = require("../utils/validation");
+const router = (0, express_1.Router)();
+router.post('/register', rateLimit_middleware_1.registerRateLimit, rateLimit_middleware_1.progressiveDelay, (0, audit_middleware_1.auditAuth)('USER_REGISTRATION'), sanitization_middleware_1.authSanitizer, (0, validation_middleware_1.validate)({ body: validation_1.registerSchema }), auth_controller_1.register, audit_middleware_1.completeAudit);
+router.post('/login', rateLimit_middleware_1.loginRateLimit, rateLimit_middleware_1.progressiveDelay, (0, audit_middleware_1.auditAuth)('USER_LOGIN'), sanitization_middleware_1.authSanitizer, (0, validation_middleware_1.validate)({ body: validation_1.loginSchema }), auth_controller_1.login, audit_middleware_1.completeAudit);
+router.post('/refresh', rateLimit_middleware_1.authRateLimit, (0, audit_middleware_1.auditAuth)('TOKEN_REFRESH'), (0, validation_middleware_1.validate)({ body: validation_1.refreshTokenSchema }), auth_controller_1.refreshToken, audit_middleware_1.completeAudit);
+router.post('/logout', auth_middleware_1.authenticateToken, (0, audit_middleware_1.auditAuth)('USER_LOGOUT'), auth_controller_1.logout, audit_middleware_1.completeAudit);
+router.post('/forgot-password', rateLimit_middleware_1.passwordResetRateLimit, rateLimit_middleware_1.emailRateLimit, (0, audit_middleware_1.auditAuth)('PASSWORD_RESET_REQUEST'), sanitization_middleware_1.authSanitizer, (0, validation_middleware_1.validate)({ body: validation_1.forgotPasswordSchema }), auth_controller_1.forgotPassword, audit_middleware_1.completeAudit);
+router.post('/reset-password', rateLimit_middleware_1.passwordResetRateLimit, (0, audit_middleware_1.auditAuth)('PASSWORD_RESET'), sanitization_middleware_1.authSanitizer, (0, validation_middleware_1.validate)({ body: validation_1.resetPasswordSchema }), auth_controller_1.resetPassword, audit_middleware_1.completeAudit);
+router.get('/profile', auth_middleware_1.authenticateToken, auth_controller_1.getProfile);
+router.put('/profile', auth_middleware_1.authenticateToken, (0, audit_middleware_1.auditAuth)('PROFILE_UPDATE'), sanitization_middleware_1.authSanitizer, (0, validation_middleware_1.validate)({ body: validation_1.updateProfileSchema }), auth_controller_1.updateProfile, audit_middleware_1.completeAudit);
+router.post('/verify-email', rateLimit_middleware_1.authRateLimit, (0, audit_middleware_1.auditAuth)('EMAIL_VERIFICATION'), (0, validation_middleware_1.validate)({ body: validation_1.verifyEmailSchema }), auth_controller_1.verifyEmail, audit_middleware_1.completeAudit);
+router.post('/resend-verification', auth_middleware_1.authenticateToken, rateLimit_middleware_1.emailRateLimit, (0, audit_middleware_1.auditAuth)('EMAIL_VERIFICATION_RESEND'), auth_controller_1.resendVerification, audit_middleware_1.completeAudit);
+router.post('/change-password', auth_middleware_1.authenticateToken, rateLimit_middleware_1.authRateLimit, (0, audit_middleware_1.auditAuth)('PASSWORD_CHANGE'), sanitization_middleware_1.authSanitizer, (0, validation_middleware_1.validate)({ body: validation_1.changePasswordSchema }), auth_controller_1.changePassword, audit_middleware_1.completeAudit);
+router.get('/sessions', auth_middleware_1.authenticateToken, auth_controller_1.getSessions);
+router.delete('/sessions/:sessionId', auth_middleware_1.authenticateToken, (0, audit_middleware_1.auditAuth)('SESSION_REVOKE'), (0, validation_middleware_1.validate)({ params: validation_middleware_1.commonParamSchemas.id }), auth_controller_1.revokeSession, audit_middleware_1.completeAudit);
+exports.default = router;
+//# sourceMappingURL=auth.routes.js.map

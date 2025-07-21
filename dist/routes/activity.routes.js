@@ -1,0 +1,17 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const activity_controller_1 = require("../controllers/activity.controller");
+const auth_middleware_1 = require("../middleware/auth.middleware");
+const rateLimit_middleware_1 = require("../middleware/rateLimit.middleware");
+const validation_middleware_1 = require("../middleware/validation.middleware");
+const sanitization_middleware_1 = require("../middleware/sanitization.middleware");
+const audit_middleware_1 = require("../middleware/audit.middleware");
+const validation_1 = require("../utils/validation");
+const router = (0, express_1.Router)();
+router.post('/:userId/log', auth_middleware_1.authenticateToken, (0, auth_middleware_1.requireRole)(['admin']), rateLimit_middleware_1.generalRateLimit, (0, audit_middleware_1.auditAuth)('ACTIVITY_LOG'), sanitization_middleware_1.sanitizationMiddleware, (0, validation_middleware_1.validate)({ body: validation_1.logActivitySchema }), activity_controller_1.logActivity, audit_middleware_1.completeAudit);
+router.get('/:userId/timeline', auth_middleware_1.authenticateToken, (0, auth_middleware_1.requireRole)(['admin']), (0, validation_middleware_1.validate)({ query: validation_1.activityTimelineSchema }), activity_controller_1.getActivityTimeline);
+router.get('/:userId/summary', auth_middleware_1.authenticateToken, (0, auth_middleware_1.requireRole)(['admin']), (0, validation_middleware_1.validate)({ query: validation_1.activitySummarySchema }), activity_controller_1.getActivitySummary);
+router.put('/:userId/:activityId', auth_middleware_1.authenticateToken, (0, auth_middleware_1.requireRole)(['admin']), (0, audit_middleware_1.auditAuth)('ACTIVITY_UPDATE'), sanitization_middleware_1.sanitizationMiddleware, (0, validation_middleware_1.validate)({ body: validation_1.updateActivitySchema }), activity_controller_1.updateActivity, audit_middleware_1.completeAudit);
+exports.default = router;
+//# sourceMappingURL=activity.routes.js.map

@@ -1,0 +1,22 @@
+import { Request, Response } from 'express';
+export declare const createUser: (req: Request, res: Response) => Promise<void>;
+export declare const getProfile: (req: Request, res: Response) => Promise<void>;
+export declare const updateProfile: (req: Request, res: Response) => Promise<void>;
+export declare const deleteAccount: (req: Request, res: Response) => Promise<void>;
+export declare const joinBranch: (req: Request, res: Response) => Promise<void>;
+export declare const leaveBranch: (req: Request, res: Response) => Promise<void>;
+export declare const getUserBranches: (req: Request, res: Response) => Promise<void>;
+export declare const searchUsers: (req: Request, res: Response) => Promise<void>;
+export declare const updateUserStatus: (req: Request, res: Response) => Promise<void>;
+export declare const getUserById: (req: Request, res: Response) => Promise<void>;
+export declare const getBodyMetrics: (req: Request, res: Response) => Promise<void>;
+export declare const updateBodyMetrics: (req: Request, res: Response) => Promise<void>;
+export declare const getBodyMetricsHistory: (req: Request, res: Response) => Promise<void>;
+export declare const getPrivacySettings: (req: Request, res: Response) => Promise<void>;
+export declare const updatePrivacySettings: (req: Request, res: Response) => Promise<void>;
+export declare const exportHealthData: (req: Request, res: Response) => Promise<void>;
+export declare const getUserPreferences: (req: Request, res: Response) => Promise<void>;
+export declare const updateUserPreferences: (req: Request, res: Response) => Promise<void>;
+export declare const registerDeviceToken: (req: Request, res: Response) => Promise<void>;
+export declare const removeDeviceToken: (req: Request, res: Response) => Promise<void>;
+//# sourceMappingURL=users.controller.d.ts.map
