@@ -7,23 +7,24 @@ exports.removeDeviceToken = exports.registerDeviceToken = exports.updateUserPref
 const User_1 = require("../models/User");
 const Branch_1 = require("../models/Branch");
 const BodyMetricsHistory_1 = require("../models/BodyMetricsHistory");
+const mongoose_1 = __importDefault(require("mongoose"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const validation_1 = require("../utils/validation");
 const errors_1 = require("../utils/errors");
 const logger_1 = require("../utils/logger");
 const bodyMetrics_1 = require("../utils/bodyMetrics");
 const createUser = async (req, res) => {
+    const validation = (0, validation_1.validateRequest)(req.body, validation_1.createUserSchema);
+    if (!validation.isValid) {
+        res.status(400).json({
+            success: false,
+            message: 'Validation failed',
+            code: 'VALIDATION_ERROR',
+            errors: validation.errors
+        });
+        return;
+    }
     try {
-        const validation = (0, validation_1.validateRequest)(validation_1.createUserSchema, req.body);
-        if (!validation.isValid) {
-            res.status(400).json({
-                success: false,
-                message: 'Validation failed',
-                code: 'VALIDATION_ERROR',
-                errors: validation.errors
-            });
-            return;
-        }
         const existingUser = await User_1.User.findOne({
             $or: [
                 { email: validation.value.email.toLowerCase() },
@@ -70,11 +71,54 @@ const createUser = async (req, res) => {
         if (validation.value.bodyComposition && Object.keys(validation.value.bodyComposition).length > 0) {
             userData.bodyComposition = validation.value.bodyComposition;
         }
+        if (validation.value.activePlans && Object.keys(validation.value.activePlans).length > 0) {
+            try {
+                userData.activePlans = {
+                    workoutPlanId: validation.value.activePlans.workoutPlanId ?
+                        new mongoose_1.default.Types.ObjectId(validation.value.activePlans.workoutPlanId) : undefined,
+                    dietPlanId: validation.value.activePlans.dietPlanId ?
+                        new mongoose_1.default.Types.ObjectId(validation.value.activePlans.dietPlanId) : undefined
+                };
+            }
+            catch (error) {
+                res.status(400).json({
+                    success: false,
+                    message: 'Invalid ObjectId format in activePlans',
+                    code: 'INVALID_OBJECTID'
+                });
+                return;
+            }
+        }
+        if (validation.value.branches && Array.isArray(validation.value.branches) && validation.value.branches.length > 0) {
+            try {
+                userData.branches = validation.value.branches.map((branch) => ({
+                    branchId: new mongoose_1.default.Types.ObjectId(branch.branchId),
+                    branchName: branch.branchName,
+                    joinedAt: branch.joinedAt ? new Date(branch.joinedAt) : new Date()
+                }));
+            }
+            catch (error) {
+                res.status(400).json({
+                    success: false,
+                    message: 'Invalid ObjectId format in branches',
+                    code: 'INVALID_OBJECTID'
+                });
+                return;
+            }
+        }
+        if (validation.value.currentMacros && Object.keys(validation.value.currentMacros).length > 0) {
+            userData.currentMacros = validation.value.currentMacros;
+        }
+        if (validation.value.totalPoints !== undefined) {
+            userData.totalPoints = validation.value.totalPoints;
+        }
         const user = new User_1.User(userData);
         await user.save();
         logger_1.logger.info('User profile created by admin', {
             userId: user._id,
             email: user.email,
+            hasActivePlans: !!user.activePlans,
+            hasBranches: !!(user.branches && user.branches.length > 0),
             createdBy: req.user?.id
         });
         res.status(201).json({
@@ -92,6 +136,9 @@ const createUser = async (req, res) => {
                     fitnessProfile: user.fitnessProfile,
                     dietPreferences: user.dietPreferences,
                     bodyComposition: user.bodyComposition,
+                    activePlans: user.activePlans,
+                    branches: user.branches,
+                    currentMacros: user.currentMacros,
                     totalPoints: user.totalPoints,
                     createdAt: user.createdAt
                 }
@@ -99,6 +146,11 @@ const createUser = async (req, res) => {
         });
     }
     catch (error) {
+        logger_1.logger.error('Error creating user', error instanceof Error ? error : new Error('Unknown error'), {
+            email: validation.value?.email || 'unknown',
+            hasActivePlans: !!(validation.value?.activePlans),
+            hasBranches: !!(validation.value?.branches && validation.value.branches.length > 0)
+        });
         res.status(500).json({
             success: false,
             message: 'Internal server error during user creation',
@@ -164,7 +216,7 @@ const getProfile = async (req, res) => {
 exports.getProfile = getProfile;
 const updateProfile = async (req, res) => {
     try {
-        const validation = (0, validation_1.validateRequest)(validation_1.updateProfileSchema, req.body);
+        const validation = (0, validation_1.validateRequest)(req.body, validation_1.updateProfileSchema);
         if (!validation.isValid) {
             res.status(400).json({
                 success: false,
@@ -667,7 +719,7 @@ const updateBodyMetrics = async (req, res) => {
             });
             return;
         }
-        const validation = (0, validation_1.validateRequest)(validation_1.bodyMetricsSchema, req.body);
+        const validation = (0, validation_1.validateRequest)(req.body, validation_1.bodyMetricsSchema);
         if (!validation.isValid) {
             res.status(400).json({
                 success: false,
@@ -893,7 +945,7 @@ const updatePrivacySettings = async (req, res) => {
             });
             return;
         }
-        const validation = (0, validation_1.validateRequest)(validation_1.privacySettingsSchema, req.body);
+        const validation = (0, validation_1.validateRequest)(req.body, validation_1.privacySettingsSchema);
         if (!validation.isValid) {
             res.status(400).json({
                 success: false,

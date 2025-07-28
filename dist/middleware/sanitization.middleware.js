@@ -107,8 +107,18 @@ const xssSanitizer = () => {
             }
             return undefined;
         }),
-        (0, express_validator_1.query)('*').trim().escape(),
-        (0, express_validator_1.param)('*').trim().escape(),
+        (0, express_validator_1.query)('*').custom((value, { path }) => {
+            if (path && ['password', 'confirmPassword', 'currentPassword', 'newPassword'].includes(path)) {
+                return typeof value === 'string' ? value.trim() : value;
+            }
+            return typeof value === 'string' ? value.trim() : value;
+        }),
+        (0, express_validator_1.param)('*').custom((value, { path }) => {
+            if (path && ['password', 'confirmPassword', 'currentPassword', 'newPassword'].includes(path)) {
+                return typeof value === 'string' ? value.trim() : value;
+            }
+            return typeof value === 'string' ? value.trim() : value;
+        }),
         (req, _res, next) => {
             const errors = (0, express_validator_1.validationResult)(req);
             const correlationId = req.headers['x-correlation-id'];
@@ -207,9 +217,9 @@ exports.sanitizationMiddleware = [
     ...(0, exports.xssSanitizer)()
 ];
 exports.authSanitizer = [
-    (0, express_validator_1.body)('email').trim().normalizeEmail(),
-    (0, express_validator_1.body)('username').trim(),
-    (0, express_validator_1.body)('name').trim(),
+    (0, express_validator_1.body)('email').trim().normalizeEmail().escape(),
+    (0, express_validator_1.body)('username').trim().escape(),
+    (0, express_validator_1.body)('name').trim().escape(),
     (0, express_validator_1.body)('password').trim(),
     (0, express_validator_1.body)('confirmPassword').trim(),
     (0, express_validator_1.body)('currentPassword').trim(),

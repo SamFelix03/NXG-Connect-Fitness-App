@@ -23,6 +23,22 @@
 /// <reference types="mongoose/types/virtuals" />
 /// <reference types="mongoose/types/inferschematype" />
 import mongoose, { Document } from 'mongoose';
+export interface IMachine {
+    _id?: mongoose.Types.ObjectId;
+    name: string;
+    type: string;
+    location: string;
+    qrCode: string;
+    isAvailable: boolean;
+    maintenanceStatus?: 'operational' | 'maintenance' | 'out_of_order';
+    lastMaintenanceDate?: Date;
+    installationDate?: Date;
+    specifications?: {
+        maxWeight?: number;
+        brand?: string;
+        model?: string;
+    };
+}
 export interface IBranch extends Document {
     name: string;
     address: string;
@@ -30,6 +46,7 @@ export interface IBranch extends Document {
     contactNumber: string;
     isActive: boolean;
     capacity: number;
+    machines: IMachine[];
     createdAt: Date;
     updatedAt: Date;
 }

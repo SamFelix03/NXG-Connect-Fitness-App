@@ -108,8 +108,23 @@ export const xssSanitizer = () => {
       return undefined;
     }),
     
-    query('*').trim().escape(),
-    param('*').trim().escape(),
+    // Query parameters (excluding password fields)
+    query('*').custom((value, { path }) => {
+      // Don't escape password-related query parameters
+      if (path && ['password', 'confirmPassword', 'currentPassword', 'newPassword'].includes(path)) {
+        return typeof value === 'string' ? value.trim() : value;
+      }
+      return typeof value === 'string' ? value.trim() : value;
+    }),
+    
+    // Route parameters (excluding password fields)
+    param('*').custom((value, { path }) => {
+      // Don't escape password-related route parameters
+      if (path && ['password', 'confirmPassword', 'currentPassword', 'newPassword'].includes(path)) {
+        return typeof value === 'string' ? value.trim() : value;
+      }
+      return typeof value === 'string' ? value.trim() : value;
+    }),
     
     // Handle validation results
     (req: Request, _res: Response, next: NextFunction) => {

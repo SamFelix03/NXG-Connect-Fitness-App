@@ -1,6 +1,7 @@
 /// <reference types="node" />
 import { Application } from 'express';
 import { Server } from 'http';
+import './jobs/workout-plan-refresh.job';
 declare class App {
     app: Application;
     port: number;

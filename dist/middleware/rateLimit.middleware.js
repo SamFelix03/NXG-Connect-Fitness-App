@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RedisStore = exports.bypassRateLimit = exports.emailRateLimit = exports.progressiveDelay = exports.passwordResetRateLimit = exports.registerRateLimit = exports.loginRateLimit = exports.authRateLimit = exports.generalRateLimit = void 0;
+exports.RedisStore = exports.bypassRateLimit = exports.emailRateLimit = exports.progressiveDelay = exports.passwordResetRateLimit = exports.registerRateLimit = exports.loginRateLimit = exports.strictRateLimit = exports.authRateLimit = exports.generalRateLimit = void 0;
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const redis_1 = require("../utils/redis");
 class RedisStore {
@@ -78,6 +78,21 @@ exports.authRateLimit = (0, express_rate_limit_1.default)({
         success: false,
         message: 'Too many authentication attempts, please try again later',
         code: 'AUTH_RATE_LIMIT_EXCEEDED'
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: rateLimitHandler,
+    skip: (_req) => {
+        return false;
+    }
+});
+exports.strictRateLimit = (0, express_rate_limit_1.default)({
+    windowMs: 10 * 60 * 1000,
+    max: 10,
+    message: {
+        success: false,
+        message: 'Too many external API requests, please try again later',
+        code: 'STRICT_RATE_LIMIT_EXCEEDED'
     },
     standardHeaders: true,
     legacyHeaders: false,

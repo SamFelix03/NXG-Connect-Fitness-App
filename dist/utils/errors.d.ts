@@ -4,6 +4,9 @@ export declare abstract class BaseError extends Error {
     readonly timestamp: string;
     constructor(message: string, statusCode: number, isOperational?: boolean);
 }
+export declare class AppError extends BaseError {
+    constructor(statusCode: number, message: string, isOperational?: boolean);
+}
 export declare class ValidationError extends BaseError {
     readonly validationErrors: Record<string, string> | undefined;
     constructor(message: string, validationErrors?: Record<string, string>);

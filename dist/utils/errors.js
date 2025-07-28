@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.shouldReportError = exports.isOperationalError = exports.ServiceUnavailableError = exports.InternalServerError = exports.RateLimitError = exports.ConflictError = exports.NotFoundError = exports.AuthorizationError = exports.AuthenticationError = exports.ValidationError = exports.BaseError = void 0;
+exports.shouldReportError = exports.isOperationalError = exports.ServiceUnavailableError = exports.InternalServerError = exports.RateLimitError = exports.ConflictError = exports.NotFoundError = exports.AuthorizationError = exports.AuthenticationError = exports.ValidationError = exports.AppError = exports.BaseError = void 0;
 class BaseError extends Error {
     statusCode;
     isOperational;
@@ -14,6 +14,13 @@ class BaseError extends Error {
     }
 }
 exports.BaseError = BaseError;
+class AppError extends BaseError {
+    constructor(statusCode, message, isOperational = true) {
+        super(message, statusCode, isOperational);
+        this.name = 'AppError';
+    }
+}
+exports.AppError = AppError;
 class ValidationError extends BaseError {
     validationErrors;
     constructor(message, validationErrors) {

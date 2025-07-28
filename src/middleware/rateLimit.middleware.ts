@@ -137,6 +137,26 @@ export const authRateLimit = rateLimit({
 });
 
 /**
+ * Strict rate limiting for external API calls (10 requests per 10 minutes)
+ */
+export const strictRateLimit = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 10, // Limit each IP to 10 requests per windowMs
+  message: {
+    success: false,
+    message: 'Too many external API requests, please try again later',
+    code: 'STRICT_RATE_LIMIT_EXCEEDED'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: rateLimitHandler,
+  skip: (_req: Request) => {
+    // Skip rate limiting for successful requests (2xx status codes)
+    return false;
+  }
+});
+
+/**
  * Rate limiting for login attempts (5 attempts per 15 minutes per IP)
  */
 export const loginRateLimit = rateLimit({

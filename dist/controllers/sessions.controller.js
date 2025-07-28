@@ -199,7 +199,9 @@ const terminateSession = async (req, res) => {
 exports.terminateSession = terminateSession;
 const getSessionHistory = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const { userId: paramUserId } = req.params;
+        const jwtUserId = req.user?._id?.toString();
+        const userId = paramUserId || jwtUserId;
         if (!userId) {
             res.status(400).json({
                 success: false,

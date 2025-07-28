@@ -59,7 +59,64 @@ const BranchSchema = new mongoose_1.Schema({
         default: 500,
         min: [1, 'Capacity must be at least 1'],
         max: [10000, 'Capacity cannot exceed 10000']
-    }
+    },
+    machines: [{
+            name: {
+                type: String,
+                required: [true, 'Machine name is required'],
+                trim: true,
+                maxlength: [100, 'Machine name cannot exceed 100 characters']
+            },
+            type: {
+                type: String,
+                required: [true, 'Machine type is required'],
+                trim: true,
+                enum: ['cardio', 'strength', 'functional', 'stretching', 'other']
+            },
+            location: {
+                type: String,
+                required: [true, 'Machine location is required'],
+                trim: true,
+                maxlength: [50, 'Location cannot exceed 50 characters']
+            },
+            qrCode: {
+                type: String,
+                required: [true, 'QR code is required'],
+                trim: true,
+                unique: true
+            },
+            isAvailable: {
+                type: Boolean,
+                default: true,
+                index: true
+            },
+            maintenanceStatus: {
+                type: String,
+                enum: ['operational', 'maintenance', 'out_of_order'],
+                default: 'operational'
+            },
+            lastMaintenanceDate: {
+                type: Date
+            },
+            installationDate: {
+                type: Date,
+                default: Date.now
+            },
+            specifications: {
+                maxWeight: {
+                    type: Number,
+                    min: [0, 'Max weight cannot be negative']
+                },
+                brand: {
+                    type: String,
+                    trim: true
+                },
+                model: {
+                    type: String,
+                    trim: true
+                }
+            }
+        }]
 }, {
     timestamps: true,
     versionKey: false
@@ -67,5 +124,8 @@ const BranchSchema = new mongoose_1.Schema({
 BranchSchema.index({ name: 1 });
 BranchSchema.index({ city: 1 });
 BranchSchema.index({ isActive: 1 });
+BranchSchema.index({ 'machines.qrCode': 1 });
+BranchSchema.index({ 'machines.isAvailable': 1 });
+BranchSchema.index({ 'machines.type': 1 });
 exports.Branch = mongoose_1.default.model('Branch', BranchSchema);
 //# sourceMappingURL=Branch.js.map

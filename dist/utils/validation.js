@@ -6,14 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deviceTokenSchema = exports.userPreferencesSchema = exports.updateActivitySchema = exports.activitySummarySchema = exports.activityTimelineSchema = exports.logActivitySchema = exports.performanceMetricsSchema = exports.aggregationSchema = exports.engagementMetricsSchema = exports.logEventSchema = exports.sessionHistorySchema = exports.updateSessionSchema = exports.createSessionSchema = exports.privacySettingsSchema = exports.bodyMetricsHistorySchema = exports.bodyMetricsSchema = exports.validateRequest = exports.changePasswordSchema = exports.resendVerificationSchema = exports.verifyEmailSchema = exports.updateProfileSchema = exports.resetPasswordSchema = exports.forgotPasswordSchema = exports.refreshTokenSchema = exports.loginSchema = exports.registerSchema = exports.createUserSchema = exports.basicRegisterSchema = void 0;
 const joi_1 = __importDefault(require("joi"));
 const passwordSchema = joi_1.default.string()
-    .min(8)
+    .min(3)
     .max(128)
-    .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]'))
     .required()
     .messages({
-    'string.min': 'Password must be at least 8 characters long',
+    'string.min': 'Password must be at least 3 characters long',
     'string.max': 'Password cannot exceed 128 characters',
-    'string.pattern.base': 'Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character (@$!%*?&)',
     'any.required': 'Password is required'
 });
 const emailSchema = joi_1.default.string()

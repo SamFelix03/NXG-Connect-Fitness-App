@@ -15,6 +15,14 @@ export abstract class BaseError extends Error {
   }
 }
 
+// Generic application error
+export class AppError extends BaseError {
+  constructor(statusCode: number, message: string, isOperational = true) {
+    super(message, statusCode, isOperational);
+    this.name = 'AppError';
+  }
+}
+
 // 400 - Bad Request
 export class ValidationError extends BaseError {
   public readonly validationErrors: Record<string, string> | undefined;

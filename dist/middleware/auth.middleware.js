@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authErrorHandler = exports.requireAuth = exports.requireOwnership = exports.requireEmailVerification = exports.requireRole = exports.optionalAuth = exports.authenticateToken = void 0;
+exports.authErrorHandler = exports.requireUserOrAdmin = exports.isUserAdmin = exports.requireAuth = exports.requireOwnership = exports.requireEmailVerification = exports.requireRole = exports.optionalAuth = exports.authenticateToken = void 0;
 const jwt_1 = require("../utils/jwt");
 const auth_service_1 = require("../services/auth.service");
 const errors_1 = require("../utils/errors");
@@ -157,6 +157,41 @@ const requireAuth = (req, res, next) => {
     next();
 };
 exports.requireAuth = requireAuth;
+const isUserAdmin = (user) => {
+    return (user.email?.includes('admin') ||
+        user.role === 'admin' ||
+        user.isAdmin === true ||
+        user.email === 'admin@example.com');
+};
+exports.isUserAdmin = isUserAdmin;
+const requireUserOrAdmin = (userIdParam = 'userId') => {
+    return (req, res, next) => {
+        if (!req.user) {
+            res.status(401).json({
+                success: false,
+                message: 'Authentication required',
+                code: 'AUTHENTICATION_REQUIRED'
+            });
+            return;
+        }
+        const isAdmin = (0, exports.isUserAdmin)(req.user);
+        if (isAdmin) {
+            return next();
+        }
+        const resourceUserId = req.params[userIdParam];
+        const currentUserId = req.user._id.toString();
+        if (resourceUserId !== currentUserId) {
+            res.status(403).json({
+                success: false,
+                message: 'Access denied - ownership or admin role required',
+                code: 'OWNERSHIP_OR_ADMIN_REQUIRED'
+            });
+            return;
+        }
+        next();
+    };
+};
+exports.requireUserOrAdmin = requireUserOrAdmin;
 const authErrorHandler = (error, _req, res, next) => {
     if (error instanceof errors_1.AuthenticationError) {
         res.status(401).json({

@@ -22,9 +22,14 @@ import usersRoutes from './routes/users.routes';
 import activityRoutes from './routes/activity.routes';
 import analyticsRoutes from './routes/analytics.routes';
 import sessionsRoutes from './routes/sessions.routes';
+import workoutsRoutes from './routes/workouts.routes';
+import integrationsRoutes from './routes/integrations.routes';
 
 // Import rate limiting middleware
 import { generalRateLimit } from './middleware/rateLimit.middleware';
+
+// Import background jobs
+import './jobs/workout-plan-refresh.job';
 
 class App {
   public app: Application;
@@ -114,6 +119,12 @@ class App {
 
     // Mount session management routes
     this.app.use('/api/sessions', sessionsRoutes);
+
+    // Mount workout routes
+    this.app.use('/api/workouts', workoutsRoutes);
+
+    // Mount integration routes
+    this.app.use('/api/integrations', integrationsRoutes);
 
     // API route prefix for future routes
     // this.app.use('/api/v1', apiRoutes); // Will be added in future stories

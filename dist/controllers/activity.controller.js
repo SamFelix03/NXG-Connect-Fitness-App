@@ -13,7 +13,7 @@ const logger_1 = __importDefault(require("../utils/logger"));
 const logActivity = async (req, res) => {
     try {
         const { userId: paramUserId } = req.params;
-        const jwtUserId = req.user?.userId;
+        const jwtUserId = req.user?._id?.toString();
         const userId = paramUserId || jwtUserId;
         if (!userId) {
             res.status(400).json({
@@ -181,7 +181,7 @@ exports.logActivity = logActivity;
 const getActivityTimeline = async (req, res) => {
     try {
         const { userId: paramUserId } = req.params;
-        const jwtUserId = req.user?.userId;
+        const jwtUserId = req.user?._id?.toString();
         const userId = paramUserId || jwtUserId;
         if (!userId) {
             res.status(400).json({
@@ -279,7 +279,7 @@ exports.getActivityTimeline = getActivityTimeline;
 const getActivitySummary = async (req, res) => {
     try {
         const { userId: paramUserId } = req.params;
-        const jwtUserId = req.user?.userId;
+        const jwtUserId = req.user?._id?.toString();
         const userId = paramUserId || jwtUserId;
         if (!userId) {
             res.status(400).json({
@@ -425,7 +425,7 @@ exports.getActivitySummary = getActivitySummary;
 const updateActivity = async (req, res) => {
     try {
         const { userId: paramUserId, activityId } = req.params;
-        const jwtUserId = req.user?.userId;
+        const jwtUserId = req.user?._id?.toString();
         const userId = paramUserId || jwtUserId;
         if (!userId || !activityId) {
             res.status(400).json({

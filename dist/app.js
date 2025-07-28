@@ -40,7 +40,13 @@ const logger_1 = require("./utils/logger");
 const health_routes_1 = __importDefault(require("./routes/health.routes"));
 const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const users_routes_1 = __importDefault(require("./routes/users.routes"));
+const activity_routes_1 = __importDefault(require("./routes/activity.routes"));
+const analytics_routes_1 = __importDefault(require("./routes/analytics.routes"));
+const sessions_routes_1 = __importDefault(require("./routes/sessions.routes"));
+const workouts_routes_1 = __importDefault(require("./routes/workouts.routes"));
+const integrations_routes_1 = __importDefault(require("./routes/integrations.routes"));
 const rateLimit_middleware_1 = require("./middleware/rateLimit.middleware");
+require("./jobs/workout-plan-refresh.job");
 class App {
     app;
     port;
@@ -92,6 +98,11 @@ class App {
         this.app.use('/', health_routes_1.default);
         this.app.use('/api/auth', auth_routes_1.default);
         this.app.use('/api/users', users_routes_1.default);
+        this.app.use('/api/activity', activity_routes_1.default);
+        this.app.use('/api/analytics', analytics_routes_1.default);
+        this.app.use('/api/sessions', sessions_routes_1.default);
+        this.app.use('/api/workouts', workouts_routes_1.default);
+        this.app.use('/api/integrations', integrations_routes_1.default);
     }
     initializeErrorHandling() {
         this.app.use(error_middleware_1.notFoundHandler);

@@ -16,5 +16,7 @@ export declare const requireRole: (allowedRoles: string[]) => (req: Request, res
 export declare const requireEmailVerification: (req: Request, res: Response, next: NextFunction) => void;
 export declare const requireOwnership: (userIdParam?: string) => (req: Request, res: Response, next: NextFunction) => void;
 export declare const requireAuth: (req: Request, res: Response, next: NextFunction) => void;
+export declare const isUserAdmin: (user: IUser) => boolean;
+export declare const requireUserOrAdmin: (userIdParam?: string) => (req: Request, res: Response, next: NextFunction) => void;
 export declare const authErrorHandler: (error: Error, _req: Request, res: Response, next: NextFunction) => void;
 //# sourceMappingURL=auth.middleware.d.ts.map
