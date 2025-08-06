@@ -44,9 +44,11 @@ const activity_routes_1 = __importDefault(require("./routes/activity.routes"));
 const analytics_routes_1 = __importDefault(require("./routes/analytics.routes"));
 const sessions_routes_1 = __importDefault(require("./routes/sessions.routes"));
 const workouts_routes_1 = __importDefault(require("./routes/workouts.routes"));
+const nutrition_routes_1 = __importDefault(require("./routes/nutrition.routes"));
 const integrations_routes_1 = __importDefault(require("./routes/integrations.routes"));
 const rateLimit_middleware_1 = require("./middleware/rateLimit.middleware");
 require("./jobs/workout-plan-refresh.job");
+require("./jobs/diet-plan-refresh.job");
 class App {
     app;
     port;
@@ -102,6 +104,7 @@ class App {
         this.app.use('/api/analytics', analytics_routes_1.default);
         this.app.use('/api/sessions', sessions_routes_1.default);
         this.app.use('/api/workouts', workouts_routes_1.default);
+        this.app.use('/api/nutrition', nutrition_routes_1.default);
         this.app.use('/api/integrations', integrations_routes_1.default);
     }
     initializeErrorHandling() {

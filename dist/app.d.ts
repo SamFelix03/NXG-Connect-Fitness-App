@@ -2,6 +2,7 @@
 import { Application } from 'express';
 import { Server } from 'http';
 import './jobs/workout-plan-refresh.job';
+import './jobs/diet-plan-refresh.job';
 declare class App {
     app: Application;
     port: number;
