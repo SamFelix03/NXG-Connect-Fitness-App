@@ -157,6 +157,26 @@ export const strictRateLimit = rateLimit({
 });
 
 /**
+ * Rate limiting for nutrition endpoints (150 requests per 15 minutes)
+ * Higher limit to allow frequent access to meal plans and nutrition data
+ */
+export const nutritionRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 150, // Higher limit for nutrition data access
+  message: {
+    success: false,
+    message: 'Too many nutrition requests, please try again later',
+    code: 'NUTRITION_RATE_LIMIT_EXCEEDED'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: rateLimitHandler,
+  skip: (_req: Request) => {
+    return false;
+  }
+});
+
+/**
  * Rate limiting for login attempts (5 attempts per 15 minutes per IP)
  */
 export const loginRateLimit = rateLimit({

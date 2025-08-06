@@ -339,6 +339,7 @@ class WorkoutPlanningService {
     }
     getMockWorkoutPlan(userProfile) {
         const mockPlan = { ...external_apis_config_1.mockApiResponses.workoutPlan };
+        mockPlan.planId = `mock-plan-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         mockPlan.difficultyLevel = userProfile.fitnessLevel;
         mockPlan.planName = `${mockPlan.planName} - ${userProfile.fitnessLevel}`;
         if (userProfile.goal === 'weight_loss') {
