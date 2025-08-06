@@ -23,6 +23,7 @@ import activityRoutes from './routes/activity.routes';
 import analyticsRoutes from './routes/analytics.routes';
 import sessionsRoutes from './routes/sessions.routes';
 import workoutsRoutes from './routes/workouts.routes';
+import nutritionRoutes from './routes/nutrition.routes';
 import integrationsRoutes from './routes/integrations.routes';
 
 // Import rate limiting middleware
@@ -30,6 +31,7 @@ import { generalRateLimit } from './middleware/rateLimit.middleware';
 
 // Import background jobs
 import './jobs/workout-plan-refresh.job';
+import './jobs/diet-plan-refresh.job';
 
 class App {
   public app: Application;
@@ -122,6 +124,9 @@ class App {
 
     // Mount workout routes
     this.app.use('/api/workouts', workoutsRoutes);
+
+    // Mount nutrition routes
+    this.app.use('/api/nutrition', nutritionRoutes);
 
     // Mount integration routes
     this.app.use('/api/integrations', integrationsRoutes);

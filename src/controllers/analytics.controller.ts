@@ -1,13 +1,20 @@
 import { Request, Response } from 'express';
 import { AnalyticsEvent, AggregatedAnalytics } from '../models/Analytics';
+import { AnalyticsService } from '../services/analytics.service';
 import { validateRequest } from '../utils/validation';
 import { 
   logEventSchema,
   engagementMetricsSchema,
   aggregationSchema,
-  performanceMetricsSchema
+  performanceMetricsSchema,
+  dailyAnalyticsSchema,
+  weeklyAnalyticsSchema,
+  workoutHistorySchema,
+  goalTrackingSchema
 } from '../utils/validation';
 import logger from '../utils/logger';
+
+const analyticsService = new AnalyticsService();
 
 export const logEvent = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -461,6 +468,379 @@ export const getPerformanceMetrics = async (req: Request, res: Response): Promis
   } catch (error) {
     logger.error('Error retrieving performance metrics', 
       error instanceof Error ? error : new Error('Unknown error')
+    );
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      code: 'SERVER_ERROR'
+    });
+  }
+};
+
+/**
+ * Daily workout analytics endpoint
+ * GET /api/analytics/workout/daily
+ * AC: 1 - calculating completion percentages, consistency scores, and performance metrics
+ */
+export const getDailyWorkoutAnalytics = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+        code: 'UNAUTHORIZED'
+      });
+      return;
+    }
+
+    // Validate query parameters
+    const validation = validateRequest(req.query, dailyAnalyticsSchema);
+    if (!validation.isValid) {
+      res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        code: 'VALIDATION_ERROR',
+        errors: validation.errors
+      });
+      return;
+    }
+
+    const { date } = validation.value;
+    const targetDate = date ? new Date(date) : new Date();
+
+    const dailyAnalytics = await analyticsService.getDailyWorkoutAnalytics(userId, targetDate);
+
+    logger.info('Daily workout analytics retrieved', { userId, date: targetDate });
+
+    res.status(200).json({
+      success: true,
+      message: 'Daily workout analytics retrieved successfully',
+      data: dailyAnalytics
+    });
+
+  } catch (error) {
+    logger.error('Error retrieving daily workout analytics', 
+      error instanceof Error ? error : new Error('Unknown error'), 
+      { userId: req.user?.id }
+    );
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      code: 'SERVER_ERROR'
+    });
+  }
+};
+
+/**
+ * Weekly workout progress endpoint
+ * GET /api/analytics/workout/weekly
+ * AC: 2 - aggregating strength gains, endurance improvements, and workout streaks
+ */
+export const getWeeklyWorkoutProgress = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+        code: 'UNAUTHORIZED'
+      });
+      return;
+    }
+
+    // Validate query parameters
+    const validation = validateRequest(req.query, weeklyAnalyticsSchema);
+    if (!validation.isValid) {
+      res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        code: 'VALIDATION_ERROR',
+        errors: validation.errors
+      });
+      return;
+    }
+
+    const { startDate, endDate, weeks } = validation.value;
+    
+    const weeklyProgress = await analyticsService.getWeeklyWorkoutProgress(
+      userId, 
+      startDate ? new Date(startDate) : undefined,
+      endDate ? new Date(endDate) : undefined,
+      weeks
+    );
+
+    logger.info('Weekly workout progress retrieved', { userId, weeks });
+
+    res.status(200).json({
+      success: true,
+      message: 'Weekly workout progress retrieved successfully',
+      data: weeklyProgress
+    });
+
+  } catch (error) {
+    logger.error('Error retrieving weekly workout progress', 
+      error instanceof Error ? error : new Error('Unknown error'), 
+      { userId: req.user?.id }
+    );
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      code: 'SERVER_ERROR'
+    });
+  }
+};
+
+/**
+ * Workout history analytics endpoint
+ * GET /api/analytics/workout/history
+ * AC: 3 - with filterable exercise logs and performance trend calculations
+ */
+export const getWorkoutHistoryAnalytics = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+        code: 'UNAUTHORIZED'
+      });
+      return;
+    }
+
+    // Validate query parameters
+    const validation = validateRequest(req.query, workoutHistorySchema);
+    if (!validation.isValid) {
+      res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        code: 'VALIDATION_ERROR',
+        errors: validation.errors
+      });
+      return;
+    }
+
+    const { startDate, endDate, exerciseId, muscleGroup, limit, offset } = validation.value;
+
+    const historyAnalytics = await analyticsService.getWorkoutHistoryAnalytics(
+      userId,
+      {
+        startDate: startDate ? new Date(startDate) : undefined,
+        endDate: endDate ? new Date(endDate) : undefined,
+        exerciseId,
+        muscleGroup,
+        limit,
+        offset
+      }
+    );
+
+    logger.info('Workout history analytics retrieved', { 
+      userId, 
+      exerciseId, 
+      muscleGroup,
+      limit,
+      offset 
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Workout history analytics retrieved successfully',
+      data: historyAnalytics
+    });
+
+  } catch (error) {
+    logger.error('Error retrieving workout history analytics', 
+      error instanceof Error ? error : new Error('Unknown error'), 
+      { userId: req.user?.id }
+    );
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      code: 'SERVER_ERROR'
+    });
+  }
+};
+
+/**
+ * Goal tracking endpoint
+ * GET /api/analytics/goals/workout
+ * AC: 4 - monitoring progress toward strength, endurance, and consistency targets
+ */
+export const getWorkoutGoalTracking = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+        code: 'UNAUTHORIZED'
+      });
+      return;
+    }
+
+    // Validate query parameters
+    const validation = validateRequest(req.query, goalTrackingSchema);
+    if (!validation.isValid) {
+      res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        code: 'VALIDATION_ERROR',
+        errors: validation.errors
+      });
+      return;
+    }
+
+    const { goalType, period } = validation.value;
+
+    const goalTracking = await analyticsService.getWorkoutGoalTracking(userId, goalType, period);
+
+    logger.info('Workout goal tracking retrieved', { userId, goalType, period });
+
+    res.status(200).json({
+      success: true,
+      message: 'Workout goal tracking retrieved successfully',
+      data: goalTracking
+    });
+
+  } catch (error) {
+    logger.error('Error retrieving workout goal tracking', 
+      error instanceof Error ? error : new Error('Unknown error'), 
+      { userId: req.user?.id }
+    );
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      code: 'SERVER_ERROR'
+    });
+  }
+};
+
+/**
+ * Performance comparison analytics
+ * GET /api/analytics/workout/comparison
+ * AC: 5 - providing anonymized benchmarking against similar user profiles
+ */
+export const getPerformanceComparison = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+        code: 'UNAUTHORIZED'
+      });
+      return;
+    }
+
+    const comparison = await analyticsService.getPerformanceComparison(userId);
+
+    logger.info('Performance comparison retrieved', { userId });
+
+    res.status(200).json({
+      success: true,
+      message: 'Performance comparison retrieved successfully',
+      data: comparison
+    });
+
+  } catch (error) {
+    logger.error('Error retrieving performance comparison', 
+      error instanceof Error ? error : new Error('Unknown error'), 
+      { userId: req.user?.id }
+    );
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      code: 'SERVER_ERROR'
+    });
+  }
+};
+
+/**
+ * Auto-progression analytics
+ * GET /api/analytics/workout/progression
+ * AC: 7 - suggesting weight increases and rep adjustments based on performance history
+ */
+export const getAutoProgressionSuggestions = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+        code: 'UNAUTHORIZED'
+      });
+      return;
+    }
+
+    const { exerciseId } = req.query;
+
+    const progressionSuggestions = await analyticsService.getAutoProgressionSuggestions(
+      userId,
+      exerciseId as string
+    );
+
+    logger.info('Auto-progression suggestions retrieved', { userId, exerciseId });
+
+    res.status(200).json({
+      success: true,
+      message: 'Auto-progression suggestions retrieved successfully',
+      data: progressionSuggestions
+    });
+
+  } catch (error) {
+    logger.error('Error retrieving auto-progression suggestions', 
+      error instanceof Error ? error : new Error('Unknown error'), 
+      { userId: req.user?.id }
+    );
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      code: 'SERVER_ERROR'
+    });
+  }
+};
+
+/**
+ * Exercise-specific analytics
+ * GET /api/analytics/workout/exercise/:exerciseId
+ * AC: 8 - tracking personal records, volume progression, and technique improvements
+ */
+export const getExerciseSpecificAnalytics = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+        code: 'UNAUTHORIZED'
+      });
+      return;
+    }
+
+    const { exerciseId } = req.params;
+    if (!exerciseId) {
+      res.status(400).json({
+        success: false,
+        message: 'Exercise ID is required',
+        code: 'VALIDATION_ERROR'
+      });
+      return;
+    }
+
+    const exerciseAnalytics = await analyticsService.getExerciseSpecificAnalytics(userId, exerciseId);
+
+    logger.info('Exercise-specific analytics retrieved', { userId, exerciseId });
+
+    res.status(200).json({
+      success: true,
+      message: 'Exercise-specific analytics retrieved successfully',
+      data: exerciseAnalytics
+    });
+
+  } catch (error) {
+    logger.error('Error retrieving exercise-specific analytics', 
+      error instanceof Error ? error : new Error('Unknown error'), 
+      { userId: req.user?.id, exerciseId: req.params['exerciseId'] }
     );
     res.status(500).json({
       success: false,
