@@ -570,3 +570,32 @@ export const deviceTokenSchema = Joi.object({
   deviceId: Joi.string().max(100).required()
 });
 
+// Workout Analytics validation schemas
+export const dailyAnalyticsSchema = Joi.object({
+  date: Joi.date().iso().optional()
+});
+
+export const weeklyAnalyticsSchema = Joi.object({
+  startDate: Joi.date().iso().optional(),
+  endDate: Joi.date().iso().min(Joi.ref('startDate')).optional(),
+  weeks: Joi.number().integer().min(1).max(52).default(4)
+}).messages({
+  'date.min': 'End date must be after start date'
+});
+
+export const workoutHistorySchema = Joi.object({
+  startDate: Joi.date().iso().optional(),
+  endDate: Joi.date().iso().min(Joi.ref('startDate')).optional(),
+  exerciseId: Joi.string().optional(),
+  muscleGroup: Joi.string().valid('Chest', 'Back', 'Legs', 'Shoulders', 'Arms', 'Core', 'Cardio').optional(),
+  limit: Joi.number().integer().min(1).max(100).default(50),
+  offset: Joi.number().integer().min(0).default(0)
+}).messages({
+  'date.min': 'End date must be after start date'
+});
+
+export const goalTrackingSchema = Joi.object({
+  goalType: Joi.string().valid('strength', 'endurance', 'consistency', 'weight_loss', 'muscle_building').optional(),
+  period: Joi.string().valid('weekly', 'monthly', 'quarterly').default('monthly')
+});
+

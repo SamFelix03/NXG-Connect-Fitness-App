@@ -467,6 +467,9 @@ export class WorkoutPlanningService {
     // Customize mock plan based on user profile
     const mockPlan = { ...mockApiResponses.workoutPlan };
     
+    // Generate unique plan ID to avoid duplicate key errors
+    mockPlan.planId = `mock-plan-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
     // Adjust difficulty based on fitness level
     mockPlan.difficultyLevel = userProfile.fitnessLevel;
     mockPlan.planName = `${mockPlan.planName} - ${userProfile.fitnessLevel}`;
