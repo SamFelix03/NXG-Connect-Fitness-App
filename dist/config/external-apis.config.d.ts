@@ -35,6 +35,41 @@ export declare const workoutPlanningServiceConfig: {
         mockMode: boolean;
     };
 };
+export declare const dietPlanningServiceConfig: {
+    baseUrl: string;
+    apiKey: string;
+    hmacSecret: string;
+    timeout: number;
+    rateLimit: {
+        requestsPerDay: number;
+        requestsPerHour: number;
+        requestsPerMinute: number;
+    };
+    retry: {
+        attempts: number;
+        delay: number;
+        factor: number;
+    };
+    circuitBreaker: {
+        failureThreshold: number;
+        timeout: number;
+        resetTimeout: number;
+    };
+    endpoints: {
+        createDietPlan: string;
+    };
+    defaultHeaders: {
+        'Content-Type': string;
+        Accept: string;
+        'User-Agent': string;
+    };
+    features: {
+        enableCaching: boolean;
+        enableCircuitBreaker: boolean;
+        enableRetries: boolean;
+        mockMode: boolean;
+    };
+};
 export declare const externalApisConfig: {
     globalTimeout: number;
     globalRetry: {
@@ -55,11 +90,13 @@ export declare const externalApisConfig: {
 export declare const externalApiCacheConfig: {
     keyPrefixes: {
         workoutPlans: string;
+        dietPlans: string;
         exercises: string;
         templates: string;
     };
     ttl: {
         workoutPlans: number;
+        dietPlans: number;
         exercises: number;
         templates: number;
         default: number;
@@ -92,6 +129,40 @@ export declare const mockApiResponses: {
                 equipment: string;
                 difficulty: string;
             }[];
+        }[];
+    };
+    dietPlan: {
+        target_weight: string;
+        macros: {
+            "Total Calories": string;
+            "Total Carbs": string;
+            "Total Protein": string;
+            "Total Fat": string;
+            "Total Fiber": string;
+        };
+        meal_plan: {
+            meals: {
+                Breakfast: string;
+                "Snack 1": string;
+                Lunch: string;
+                "Snack 2": string;
+                Dinner: string;
+            };
+            calories: {
+                Breakfast: number;
+                "Snack 1": number;
+                Lunch: number;
+                "Snack 2": number;
+                Dinner: number;
+            };
+            short_names: {
+                Breakfast: string;
+                "Snack 1": string;
+                Lunch: string;
+                "Snack 2": string;
+                Dinner: string;
+            };
+            day: number;
         }[];
     };
     exerciseLibrary: {
@@ -147,6 +218,41 @@ declare const _default: {
             mockMode: boolean;
         };
     };
+    dietPlanningService: {
+        baseUrl: string;
+        apiKey: string;
+        hmacSecret: string;
+        timeout: number;
+        rateLimit: {
+            requestsPerDay: number;
+            requestsPerHour: number;
+            requestsPerMinute: number;
+        };
+        retry: {
+            attempts: number;
+            delay: number;
+            factor: number;
+        };
+        circuitBreaker: {
+            failureThreshold: number;
+            timeout: number;
+            resetTimeout: number;
+        };
+        endpoints: {
+            createDietPlan: string;
+        };
+        defaultHeaders: {
+            'Content-Type': string;
+            Accept: string;
+            'User-Agent': string;
+        };
+        features: {
+            enableCaching: boolean;
+            enableCircuitBreaker: boolean;
+            enableRetries: boolean;
+            mockMode: boolean;
+        };
+    };
     general: {
         globalTimeout: number;
         globalRetry: {
@@ -167,11 +273,13 @@ declare const _default: {
     cache: {
         keyPrefixes: {
             workoutPlans: string;
+            dietPlans: string;
             exercises: string;
             templates: string;
         };
         ttl: {
             workoutPlans: number;
+            dietPlans: number;
             exercises: number;
             templates: number;
             default: number;
@@ -204,6 +312,40 @@ declare const _default: {
                     equipment: string;
                     difficulty: string;
                 }[];
+            }[];
+        };
+        dietPlan: {
+            target_weight: string;
+            macros: {
+                "Total Calories": string;
+                "Total Carbs": string;
+                "Total Protein": string;
+                "Total Fat": string;
+                "Total Fiber": string;
+            };
+            meal_plan: {
+                meals: {
+                    Breakfast: string;
+                    "Snack 1": string;
+                    Lunch: string;
+                    "Snack 2": string;
+                    Dinner: string;
+                };
+                calories: {
+                    Breakfast: number;
+                    "Snack 1": number;
+                    Lunch: number;
+                    "Snack 2": number;
+                    Dinner: number;
+                };
+                short_names: {
+                    Breakfast: string;
+                    "Snack 1": string;
+                    Lunch: string;
+                    "Snack 2": string;
+                    Dinner: string;
+                };
+                day: number;
             }[];
         };
         exerciseLibrary: {
