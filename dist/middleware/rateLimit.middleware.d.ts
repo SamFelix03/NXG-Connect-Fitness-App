@@ -25,6 +25,7 @@ declare class RedisStore {
 export declare const generalRateLimit: import("express-rate-limit").RateLimitRequestHandler;
 export declare const authRateLimit: import("express-rate-limit").RateLimitRequestHandler;
 export declare const strictRateLimit: import("express-rate-limit").RateLimitRequestHandler;
+export declare const nutritionRateLimit: import("express-rate-limit").RateLimitRequestHandler;
 export declare const loginRateLimit: import("express-rate-limit").RateLimitRequestHandler;
 export declare const registerRateLimit: import("express-rate-limit").RateLimitRequestHandler;
 export declare const passwordResetRateLimit: import("express-rate-limit").RateLimitRequestHandler;
