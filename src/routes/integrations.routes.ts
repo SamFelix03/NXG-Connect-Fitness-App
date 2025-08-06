@@ -2,7 +2,10 @@ import { Router } from 'express';
 import { 
   createOrRefreshWorkoutPlan,
   deactivateWorkoutPlan,
-  getWorkoutPlanStatus
+  getWorkoutPlanStatus,
+  createOrRefreshDietPlan,
+  deactivateDietPlan,
+  getDietPlanStatus
 } from '../controllers/integrations.controller';
 import { 
   authenticateToken,
@@ -21,8 +24,8 @@ const router = Router();
  * Integration Routes
  * All routes are prefixed with /api/integrations
  * 
- * These routes handle integration with external services for workout planning,
- * including plan creation, refresh, and management functionality.
+ * These routes handle integration with external services for workout planning
+ * and diet planning, including plan creation, refresh, and management functionality.
  */
 
 /**
@@ -88,6 +91,68 @@ router.delete(
 );
 
 /**
+ * POST /api/integrations/diet-plans
+ * Create or refresh user's diet plan using external service
+ * 
+ * Request Body:
+ * - targetUserId (optional): Admin can specify target user ID
+ * - forceRefresh (optional): Force refresh even if active plan exists (default: false)
+ * - customPreferences (optional): Custom dietary preferences object
+ * 
+ * Authentication: Required (user or admin)
+ * Rate Limiting: Strict rate limit due to external API usage
+ */
+router.post(
+  '/diet-plans',
+  authenticateToken,
+  requireUserOrAdmin(),
+  auditAuth('create-diet-plan'),
+  strictRateLimit, // Stricter rate limiting for external API calls
+  sanitizationMiddleware,
+  createOrRefreshDietPlan,
+  completeAudit
+);
+
+/**
+ * GET /api/integrations/diet-plans/status
+ * Get status of user's diet plan including refresh information
+ * 
+ * Authentication: Required (user or admin)
+ * Rate Limiting: General rate limit applied
+ */
+router.get(
+  '/diet-plans/status',
+  authenticateToken,
+  requireUserOrAdmin(),
+  auditAuth('read-diet-plan-status'),
+  generalRateLimit,
+  sanitizationMiddleware,
+  getDietPlanStatus,
+  completeAudit
+);
+
+/**
+ * DELETE /api/integrations/diet-plans/:planId
+ * Deactivate a specific diet plan
+ * 
+ * Path Parameters:
+ * - planId: The diet plan document ID to deactivate
+ * 
+ * Authentication: Required (user or admin)
+ * Rate Limiting: General rate limit applied
+ */
+router.delete(
+  '/diet-plans/:planId',
+  authenticateToken,
+  requireUserOrAdmin(),
+  auditAuth('delete-diet-plan'),
+  generalRateLimit,
+  sanitizationMiddleware,
+  deactivateDietPlan,
+  completeAudit
+);
+
+/**
  * Health Check for Integrations Service
  * GET /api/integrations/health
  */
@@ -102,10 +167,14 @@ router.get('/health', (_req, res) => {
       availableEndpoints: [
         'POST /api/integrations/workout-plans',
         'GET /api/integrations/workout-plans/status',
-        'DELETE /api/integrations/workout-plans/:planId'
+        'DELETE /api/integrations/workout-plans/:planId',
+        'POST /api/integrations/diet-plans',
+        'GET /api/integrations/diet-plans/status',
+        'DELETE /api/integrations/diet-plans/:planId'
       ],
       externalServices: {
         workoutPlanningService: 'connected',
+        dietPlanningService: 'connected',
         cacheService: 'connected'
       }
     }

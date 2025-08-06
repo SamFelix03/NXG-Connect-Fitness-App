@@ -41,6 +41,21 @@ export interface IUserActivity extends Document {
       aiVersion: string;
       mealDetected: string;
       isVerified: boolean;
+      mealId?: string;
+      previousBreakdown?: string;
+      correctionHistory?: Array<{
+        correction: string;
+        correctedAt: Date;
+        previousData: {
+          calories: number;
+          macros: {
+            carbs: number;
+            fat: number;
+            protein: number;
+            fiber: number;
+          };
+        };
+      }>;
     }>;
   };
   pointsEarned: Array<{
@@ -183,7 +198,35 @@ const UserActivitySchema: Schema = new Schema({
         required: [true, 'Detected meal is required'],
         maxlength: [200, 'Detected meal cannot exceed 200 characters']
       },
-      isVerified: { type: Boolean, default: false }
+      isVerified: { type: Boolean, default: false },
+      mealId: { 
+        type: String, 
+        maxlength: [50, 'Meal ID cannot exceed 50 characters']
+      },
+      previousBreakdown: { 
+        type: String, 
+        maxlength: [2000, 'Previous breakdown cannot exceed 2000 characters']
+      },
+      correctionHistory: [{
+        correction: { 
+          type: String, 
+          required: [true, 'Correction text is required'],
+          maxlength: [1000, 'Correction cannot exceed 1000 characters']
+        },
+        correctedAt: { 
+          type: Date, 
+          required: [true, 'Correction time is required']
+        },
+        previousData: {
+          calories: { type: Number, required: true, min: 0 },
+          macros: {
+            carbs: { type: Number, required: true, min: 0 },
+            fat: { type: Number, required: true, min: 0 },
+            protein: { type: Number, required: true, min: 0 },
+            fiber: { type: Number, required: true, min: 0 }
+          }
+        }
+      }]
     }]
   },
   pointsEarned: [{
@@ -248,6 +291,7 @@ const UserActivitySchema: Schema = new Schema({
 UserActivitySchema.index({ userId: 1, date: -1 }, { unique: true });
 UserActivitySchema.index({ userId: 1, 'summary.totalPoints': -1 });
 UserActivitySchema.index({ date: -1 });
+UserActivitySchema.index({ userId: 1, 'dietActivity.uploadedMeals.uploadedAt': -1 });
 
 // Pre-save middleware to calculate summary data
 UserActivitySchema.pre('save', function(next) {
